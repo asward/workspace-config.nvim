@@ -101,14 +101,6 @@ function M.setup(opts)
   end
 end
 
--- Auto-load on VimEnter
-vim.api.nvim_create_autocmd("VimEnter", {
-  pattern = "*",
-  callback = function()
-    M.setup()
-  end,
-  desc = "Load workspace configuration"
-})
 
 -- Command to manually reload
 vim.api.nvim_create_user_command("WorkspaceConfigReload", function()
