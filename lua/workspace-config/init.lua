@@ -86,7 +86,7 @@ end
 
 function M.setup(opts)
   opts = opts or {}
-  
+  vim.notify("Loading Workspace")  
   local config = load_project_config()
   if not config then
     return
