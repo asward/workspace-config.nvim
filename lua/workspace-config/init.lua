@@ -1,8 +1,48 @@
 
 local M = {}
 
+local function load_filetype_config(config)
+ for filetype, settings in pairs(config) do
+   vim.api.nvim_create_autocmd("FileType", {
+     pattern = filetype,
+     callback = function()
+       -- Set buffer-local options
+       if settings.opts then
+         for opt, value in pairs(settings.opts) do
+           vim.opt_local[opt] = value
+         end
+       end
+       
+       -- Set key mappings
+       if settings.keymaps then
+         for _, keymap in ipairs(settings.keymaps) do
+           vim.keymap.set(
+             keymap.mode or "n",
+             keymap.lhs,
+             keymap.rhs,
+             vim.tbl_extend("force", { buffer = true }, keymap.opts or {})
+           )
+         end
+       end
+       
+       -- Run custom commands
+       if settings.commands then
+         for _, cmd in ipairs(settings.commands) do
+           vim.cmd(cmd)
+         end
+       end
+       
+       -- Run callback function
+       if settings.callback then
+         settings.callback()
+       end
+     end,
+   })
+ end
+end
+
 local function load_lsp_servers(servers)
-  vim.notify('Loading workspace LSPs')
+  vim.notify('Loading workspace LSPs', vim.log.levels.DEBUG)
   
   local mason_ok, mason = pcall(require, 'mason')
   if not mason_ok then
@@ -18,7 +58,7 @@ local function load_lsp_servers(servers)
 
   for _, server in ipairs(servers) do
     if not mason_registry.is_installed(server) then
-      vim.notify('Installing ' .. server .. '...', vim.log.levels.INFO)
+      vim.notify('Installing ' .. server .. '...', vim.log.levels.DEBUG)
       vim.cmd('MasonInstall ' .. server)
     end
   end
@@ -27,7 +67,8 @@ local function load_lsp_servers(servers)
 end
 
 local function configure_lsp(lsp_configs)
-  vim.notify('Configuring workspace LSPs')
+  vim.notify('Configuring workspace LSPs', vim.log.levels.DEBUG)
+
   
   local lspconfig_ok, lspconfig = pcall(require, 'lspconfig')
   if not lspconfig_ok then
@@ -78,7 +119,7 @@ local function load_project_config()
   end
 
   if config_result then
-    vim.notify('Config result keys: ' .. vim.inspect(vim.tbl_keys(config_result)))
+    vim.notify('Config result keys: ' .. vim.inspect(vim.tbl_keys(config_result)), vim.log.levels.ERROR)
   end
 
   return config_result
@@ -86,7 +127,7 @@ end
 
 function M.setup(opts)
   opts = opts or {}
-  vim.notify("Loading Workspace")  
+  vim.notify("Loading Workspace", vim.log.levels.DEBUG)
   local config = load_project_config()
   if not config then
     return
@@ -99,8 +140,11 @@ function M.setup(opts)
   if config.lsp_configs and next(config.lsp_configs) then
     configure_lsp(config.lsp_configs)
   end
-end
 
+  if config.filetype_config and next(config.filetype_config) then
+    load_filetype_config(config.filetype_config)
+  end
+end
 
 -- Command to manually reload
 vim.api.nvim_create_user_command("WorkspaceConfigReload", function()
