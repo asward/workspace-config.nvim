@@ -119,7 +119,7 @@ local function load_project_config()
   end
 
   if config_result then
-    vim.notify('Config result keys: ' .. vim.inspect(vim.tbl_keys(config_result)), vim.log.levels.ERROR)
+    vim.notify('Config result keys: ' .. vim.inspect(vim.tbl_keys(config_result)), vim.log.levels.DEBUG)
   end
 
   return config_result
@@ -141,8 +141,8 @@ function M.setup(opts)
     configure_lsp(config.lsp_configs)
   end
 
-  if config.filetype_config and next(config.filetype_config) then
-    load_filetype_config(config.filetype_config)
+  if config.filetype_configs and next(config.filetype_configs) then
+    load_filetype_config(config.filetype_configs)
   end
 end
 

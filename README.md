@@ -50,7 +50,7 @@ return {
       root_dir_patterns = { 'Cargo.toml' }
     }
   },
-  filetype_config = {
+  filetype_configs = {
      python = {
        opts = {
          tabstop = 4,
