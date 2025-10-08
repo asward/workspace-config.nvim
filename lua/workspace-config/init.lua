@@ -99,6 +99,44 @@ local function configure_lsp(lsp_configs)
 	return true
 end
 
+local function load_dap_adapters(dap_adapters)
+	vim.notify("Loading workspace DAP adapters", vim.log.levels.DEBUG)
+
+	local dap_ok, dap = pcall(require, "dap")
+	if not dap_ok then
+		vim.notify("nvim-dap not found - please install nvim-dap", vim.log.levels.WARN)
+		return false
+	end
+
+	for adapter_name, adapter_config in pairs(dap_adapters) do
+		dap.adapters[adapter_name] = adapter_config
+	end
+
+	return true
+end
+
+local function configure_dap(dap_configs)
+	vim.notify("Configuring workspace DAP", vim.log.levels.DEBUG)
+
+	local dap_ok, dap = pcall(require, "dap")
+	if not dap_ok then
+		vim.notify("nvim-dap not found - please install nvim-dap", vim.log.levels.WARN)
+		return false
+	end
+
+	for filetype, configs in pairs(dap_configs) do
+		if not dap.configurations[filetype] then
+			dap.configurations[filetype] = {}
+		end
+
+		for _, config in ipairs(configs) do
+			table.insert(dap.configurations[filetype], config)
+		end
+	end
+
+	return true
+end
+
 local function load_project_config()
 	local project_config = vim.fn.getcwd() .. "/.nvimrc.lua"
 
@@ -143,6 +181,14 @@ function M.setup(opts)
 
 	if config.filetype_configs and next(config.filetype_configs) then
 		load_filetype_config(config.filetype_configs)
+	end
+
+	if config.dap_adapters and next(config.dap_adapters) then
+		load_dap_adapters(config.dap_adapters)
+	end
+
+	if config.dap_configs and next(config.dap_configs) then
+		configure_dap(config.dap_configs)
 	end
 end
 

@@ -7,6 +7,7 @@ Project-specific Neovim configuration loader with automatic LSP setup.
 - Load project-specific configuration from `.nvimrc.lua`
 - Auto-install LSP servers via Mason
 - Configure LSP servers with project-specific settings
+- Configure DAP adapters and debug configurations
 - Auto-loads on startup or manual reload
 - Auto-load filetype configuartion as autocommands
 
@@ -27,6 +28,7 @@ use {
     'williamboman/mason.nvim',
     'neovim/nvim-lspconfig',
     'hrsh7th/cmp-nvim-lsp', -- optional
+    'mfussenegger/nvim-dap', -- optional
   }
 }
 ```
@@ -75,6 +77,41 @@ return {
          { lhs = "<F5>", rhs = ":luafile %<CR>" },
        },
      },
+   },
+   dap_adapters = {
+     codelldb = {
+       type = 'server',
+       port = '${port}',
+       executable = {
+         command = 'codelldb',
+         args = {'--port', '${port}'},
+       }
+     },
+   },
+   dap_configs = {
+     rust = {
+       {
+         name = 'Launch file',
+         type = 'codelldb',
+         request = 'launch',
+         program = function()
+           return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+         end,
+         cwd = '${workspaceFolder}',
+         stopOnEntry = false,
+       },
+     },
+     python = {
+       {
+         type = 'python',
+         request = 'launch',
+         name = 'Launch file',
+         program = '${file}',
+         pythonPath = function()
+           return '/usr/bin/python3'
+         end,
+       },
+     },
    }
 }
 ```
@@ -88,6 +125,7 @@ return {
 - Neovim 0.8+
 - [mason.nvim](https://github.com/williamboman/mason.nvim)
 - [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+- [nvim-dap](https://github.com/mfussenegger/nvim-dap) (optional, for debugging support)
 
 ## License
 
