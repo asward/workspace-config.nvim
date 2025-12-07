@@ -70,12 +70,6 @@ end
 local function configure_lsp(lsp_configs)
 	vim.notify("Configuring workspace LSPs", vim.log.levels.DEBUG)
 
-	local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
-	if not lspconfig_ok then
-		vim.notify("lspconfig not found - please install nvim-lspconfig", vim.log.levels.WARN)
-		return false
-	end
-
 	local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 	local cmp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
@@ -88,12 +82,20 @@ local function configure_lsp(lsp_configs)
 			capabilities = capabilities,
 		}, config)
 
+		-- Handle root_dir_patterns if provided
 		if config.root_dir_patterns then
-			server_config.root_dir = lspconfig.util.root_pattern(unpack(config.root_dir_patterns))
+			local patterns = config.root_dir_patterns
+			server_config.root_dir = function(filename, bufnr)
+				return vim.fs.root(bufnr, patterns)
+			end
 			server_config.root_dir_patterns = nil
 		end
 
-		lspconfig[server_name].setup(server_config)
+		-- Configure the LSP server using the modern API
+		vim.lsp.config(server_name, server_config)
+
+		-- Enable the LSP server
+		vim.lsp.enable(server_name)
 	end
 
 	return true
