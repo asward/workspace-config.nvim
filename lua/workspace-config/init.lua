@@ -100,7 +100,7 @@ local function configure_lsp(lsp_configs)
 		--end
 
 		-- Configure the LSP server using the modern API
-		vim.lsp.config(server_name, server_config)
+		vim.lsp.config(server_name, config)
 
 		-- Enable the LSP server
 		vim.lsp.enable(server_name)
