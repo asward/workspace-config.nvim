@@ -42,6 +42,7 @@ return {
   lsp_servers = { 'lua_ls', 'rust_analyzer', 'tsserver' },
   lsp_configs = {
     lua_ls = {
+      filetypes = { 'lua' },
       settings = {
         Lua = {
           diagnostics = { globals = {'vim'} }
@@ -49,7 +50,11 @@ return {
       }
     },
     rust_analyzer = {
+      filetypes = { 'rust' },
       root_dir_patterns = { 'Cargo.toml' }
+    },
+    tsserver = {
+      filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' }
     }
   },
   filetype_configs = {
@@ -120,11 +125,21 @@ return {
 
 - `:WorkspaceConfigReload` - Manually reload workspace configuration
 
+## LSP Configuration Notes
+
+For Neovim 0.11+, the `filetypes` field is **required** in each LSP server configuration. This tells the LSP which file types to activate on.
+
+Example filetypes for common servers:
+- `clangd`: `{ 'c', 'cpp', 'objc', 'objcpp' }`
+- `pyright` or `pylsp`: `{ 'python' }`
+- `rust_analyzer`: `{ 'rust' }`
+- `gopls`: `{ 'go', 'gomod', 'gowork' }`
+- `lua_ls`: `{ 'lua' }`
+
 ## Requirements
 
-- Neovim 0.8+
+- Neovim 0.11+
 - [mason.nvim](https://github.com/williamboman/mason.nvim)
-- [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap) (optional, for debugging support)
 
 ## License
